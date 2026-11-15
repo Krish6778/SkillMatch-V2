@@ -1,0 +1,76 @@
+
+{% extends "base.html" %}
+
+{% block title %}Edit Profile | SkillMatch{% endblock %}
+
+{% block content %}
+
+<div class="profile-form-container">
+
+    <div class="card shadow-sm border-0 p-4">
+
+        <h2 class="fw-bold mb-2">
+            Edit Your Profile
+        </h2>
+
+        <p class="text-muted mb-4">
+            Tell other students about your skills and interests.
+        </p>
+
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            {% for field in form %}
+
+                <div class="mb-4">
+
+                    <label class="form-label fw-semibold">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.help_text %}
+                        <div class="form-text">
+                            {{ field.help_text }}
+                        </div>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                        <div class="text-danger small">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+            {% endfor %}
+
+
+            {% if form.non_field_errors %}
+
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+
+            {% endif %}
+
+
+            <button type="submit" class="btn btn-primary">
+                Save Changes
+            </button>
+
+            <a href="{% url 'profile' %}"
+               class="btn btn-outline-secondary ms-2">
+                Cancel
+            </a>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

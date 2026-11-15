@@ -1,0 +1,83 @@
+
+{% extends "base.html" %}
+
+{% block title %}Create Team | SkillMatch{% endblock %}
+
+{% block content %}
+
+<div class="team-form-container">
+
+    <div class="card shadow-sm border-0 p-4">
+
+        <h2 class="fw-bold">Create Your Team</h2>
+
+        <p class="text-muted mb-4">
+            Provide details about your project and the skills
+            you are looking for in teammates.
+        </p>
+
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            {% for field in form %}
+
+                <div class="mb-4">
+
+                    <label class="form-label fw-semibold">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.help_text %}
+                        <div class="form-text">
+                            {{ field.help_text }}
+                        </div>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+
+                        <div class="text-danger small">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endfor %}
+
+
+            {% if form.non_field_errors %}
+
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+
+            {% endif %}
+
+
+            <div class="alert alert-info">
+                You will automatically become the leader and
+                first member of this team.
+            </div>
+
+
+            <button type="submit" class="btn btn-primary">
+                Create Team
+            </button>
+
+            <a href="{% url 'team_list' %}"
+               class="btn btn-outline-secondary ms-2">
+                Cancel
+            </a>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

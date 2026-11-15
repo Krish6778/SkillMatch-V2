@@ -1,0 +1,307 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ team.name }} | SkillMatch{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+
+    <a href="{% url 'team_list' %}"
+       class="text-decoration-none">
+        &larr; Back to Discover Teams
+    </a>
+
+</div>
+
+
+<!-- TEAM INFORMATION -->
+
+<div class="card shadow-sm border-0 p-4 mb-4">
+
+    <div class="d-flex justify-content-between align-items-start">
+
+        <div>
+
+            <h2 class="fw-bold">
+                {{ team.name }}
+            </h2>
+
+            <h5 class="text-primary">
+                {{ team.project_title }}
+            </h5>
+
+        </div>
+
+        {% if team.is_open %}
+            <span class="badge bg-success">Open</span>
+        {% else %}
+            <span class="badge bg-secondary">Closed</span>
+        {% endif %}
+
+    </div>
+
+
+    <hr>
+
+    <h5>Project Description</h5>
+
+    <p>
+        {{ team.description|linebreaksbr }}
+    </p>
+
+
+    <p>
+        <strong>Team Leader:</strong>
+        {{ team.leader.username }}
+    </p>
+
+
+    <p>
+        <strong>Team Size:</strong>
+        {{ members|length }}/{{ team.max_members }}
+    </p>
+
+
+    <h5 class="mt-3">Required Skills</h5>
+
+    {% for skill in team.required_skills.all %}
+
+        <span class="badge bg-primary skill-badge">
+            {{ skill.name }}
+        </span>
+
+    {% empty %}
+
+        <p class="text-muted">
+            No specific skills listed.
+        </p>
+
+    {% endfor %}
+
+</div>
+
+
+<!-- TEAM MEMBERS -->
+
+<div class="card shadow-sm border-0 p-4 mb-4">
+
+    <h4 class="fw-bold mb-3">
+        Team Members
+    </h4>
+
+    {% for member in members %}
+
+        <div class="member-row d-flex justify-content-between align-items-center">
+
+            <div>
+
+                <strong>
+                    {{ member.user.username }}
+                </strong>
+
+                <div class="text-muted small">
+                    {{ member.user.first_name }} {{ member.user.last_name }}
+                </div>
+
+            </div>
+
+
+            {% if member.role == "LEADER" %}
+
+                <span class="badge bg-primary">
+                    Team Leader
+                </span>
+
+            {% else %}
+
+                <span class="badge bg-secondary">
+                    Member
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    {% empty %}
+
+        <p class="text-muted">
+            No members found.
+        </p>
+
+    {% endfor %}
+
+</div>
+
+
+<!-- JOIN TEAM -->
+
+{% if membership %}
+
+    {% if membership.team_id == team.id %}
+
+        <div class="alert alert-success">
+            You are already a member of this team.
+        </div>
+
+    {% else %}
+
+        <div class="alert alert-warning">
+            You already belong to another team.
+            You cannot apply to this team.
+        </div>
+
+    {% endif %}
+
+{% elif user_request and user_request.status == "PENDING" %}
+
+    <div class="alert alert-warning">
+        Your join request is pending approval from the team leader.
+    </div>
+
+{% elif user_request and user_request.status == "ACCEPTED" %}
+
+    <div class="alert alert-success">
+        Your join request was accepted.
+    </div>
+
+{% elif team.is_open %}
+
+    <div class="card shadow-sm border-0 p-4 mb-4">
+
+        <h4 class="fw-bold">
+            Request to Join This Team
+        </h4>
+
+        <p class="text-muted">
+            Introduce yourself and explain why you would
+            be a good fit for this project.
+        </p>
+
+        <form method="POST"
+              action="{% url 'join_team' team.id %}">
+
+            {% csrf_token %}
+
+            {% if user_request and user_request.status == "REJECTED" %}
+                <div class="alert alert-info">
+                    Your previous request was rejected.
+                    You can submit a new request.
+                </div>
+            {% endif %}
+
+            <label class="form-label fw-semibold">
+                Message
+            </label>
+
+            <textarea
+                name="message"
+                class="form-control mb-3"
+                rows="4"
+                maxlength="500"
+                placeholder="Tell the team leader about your skills and interests"
+            >{% if user_request %}{{ user_request.message }}{% endif %}</textarea>
+
+            <button type="submit" class="btn btn-primary">
+                Send Join Request
+            </button>
+
+        </form>
+
+    </div>
+
+{% else %}
+
+    <div class="alert alert-secondary">
+        This team is currently not accepting applications.
+    </div>
+
+{% endif %}
+
+
+<!-- LEADER APPLICATION MANAGEMENT -->
+
+{% if request.user.id == team.leader_id %}
+
+    <div class="card shadow-sm border-0 p-4 mt-4">
+
+        <h4 class="fw-bold mb-3">
+            Manage Join Requests
+        </h4>
+
+        {% for join_request in pending_requests %}
+
+            <div class="request-card p-3 mb-3">
+
+                <div class="d-flex justify-content-between">
+
+                    <strong>
+                        {{ join_request.user.username }}
+                    </strong>
+
+                    <span class="badge bg-warning text-dark">
+                        Pending
+                    </span>
+
+                </div>
+
+                <p class="text-muted small mt-2">
+                    {{ join_request.user.first_name }}
+                    {{ join_request.user.last_name }}
+                </p>
+
+                <p>
+                    {{ join_request.message|default:"No message provided."|linebreaksbr }}
+                </p>
+
+
+                <div class="d-flex gap-2">
+
+                    <form method="POST"
+                          action="{% url 'handle_join_request' team.id join_request.id 'accept' %}">
+
+                        {% csrf_token %}
+
+                        <button type="submit"
+                                class="btn btn-success btn-sm">
+                            Accept
+                        </button>
+
+                    </form>
+
+
+                    <form method="POST"
+                          action="{% url 'handle_join_request' team.id join_request.id 'reject' %}">
+
+                        {% csrf_token %}
+
+                        <button type="submit"
+                                class="btn btn-danger btn-sm">
+                            Reject
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        {% empty %}
+
+            <p class="text-muted">
+                There are no pending join requests.
+            </p>
+
+        {% endfor %}
+
+    </div>
+
+{% endif %}
+
+
+<a href="{% url 'my_team' %}"
+   class="btn btn-outline-primary mt-3">
+    My Team
+</a>
+
+{% endblock %}

@@ -1,0 +1,211 @@
+
+{% extends "base.html" %}
+
+{% block title %}Discover Teams | SkillMatch{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h2 class="fw-bold">Discover Teams</h2>
+        <p class="text-muted">
+            Find project teams that match your skills and interests.
+        </p>
+    </div>
+
+    {% if not membership %}
+        <a href="{% url 'create_team' %}" class="btn btn-primary">
+            + Create Team
+        </a>
+    {% endif %}
+
+</div>
+
+
+<!-- SEARCH AND FILTER -->
+
+<div class="card shadow-sm border-0 p-4 mb-4">
+
+    <form method="GET">
+
+        <div class="row g-3">
+
+            <div class="col-md-7">
+
+                <label class="form-label fw-semibold">
+                    Search Teams
+                </label>
+
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ search_query }}"
+                    class="form-control"
+                    placeholder="Search by team or project name"
+                >
+
+            </div>
+
+
+            <div class="col-md-3">
+
+                <label class="form-label fw-semibold">
+                    Filter by Skill
+                </label>
+
+                <select name="skill" class="form-select">
+
+                    <option value="">All Skills</option>
+
+                    {% for skill in skills %}
+
+                        <option
+                            value="{{ skill.id }}"
+                            {% if selected_skill == skill.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ skill.name }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="col-md-2 d-flex align-items-end">
+
+                <button type="submit" class="btn btn-primary w-100">
+                    Search
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- TEAM LIST -->
+
+<div class="row g-4">
+
+    {% for team in teams %}
+
+        <div class="col-md-6 col-lg-4">
+
+            <div class="card team-card shadow-sm h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex justify-content-between mb-3">
+
+                        <span class="badge bg-success">
+                            Open
+                        </span>
+
+                        <span class="text-muted small">
+                            {{ team.total_members }}/{{ team.max_members }} Members
+                        </span>
+
+                    </div>
+
+
+                    <h4 class="fw-bold">
+                        {{ team.name }}
+                    </h4>
+
+                    <h6 class="text-primary">
+                        {{ team.project_title|default:"Project title not specified" }}
+                    </h6>
+
+
+                    <p class="text-muted team-description">
+                        {{ team.description|truncatewords:25 }}
+                    </p>
+
+
+                    <p class="small mb-2">
+                        <strong>Team Leader:</strong>
+                        {{ team.leader.username }}
+                    </p>
+
+
+                    <p class="small fw-semibold mb-2">
+                        Required Skills
+                    </p>
+
+                    <div class="mb-3">
+
+                        {% for skill in team.required_skills.all %}
+
+                            <span class="badge bg-light text-dark border">
+                                {{ skill.name }}
+                            </span>
+
+                        {% empty %}
+
+                            <span class="text-muted small">
+                                No specific skills listed.
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    {% if membership and membership.team_id == team.id %}
+
+                        <a href="{% url 'my_team' %}"
+                           class="btn btn-outline-success w-100">
+                            Your Current Team
+                        </a>
+
+                    {% else %}
+
+                        <a href="{% url 'team_detail' team.id %}"
+                           class="btn btn-primary w-100">
+                            View Team
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% empty %}
+
+        <div class="col-12">
+
+            <div class="card border-0 shadow-sm p-5 text-center">
+
+                <h4>No Teams Found</h4>
+
+                <p class="text-muted">
+                    Try changing your search or skill filter.
+                </p>
+
+                {% if not membership %}
+                    <a href="{% url 'create_team' %}"
+                       class="btn btn-primary mx-auto">
+                        Create the First Team
+                    </a>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

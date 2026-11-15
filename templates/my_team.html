@@ -1,0 +1,160 @@
+
+{% extends "base.html" %}
+
+{% block title %}My Team | SkillMatch{% endblock %}
+
+{% block content %}
+
+<h2 class="fw-bold mb-4">
+    My Team
+</h2>
+
+
+{% if membership %}
+
+    <div class="card shadow-sm border-0 p-4 mb-4">
+
+        <div class="d-flex justify-content-between align-items-start">
+
+            <div>
+
+                <h3 class="fw-bold">
+                    {{ team.name }}
+                </h3>
+
+                <h5 class="text-primary">
+                    {{ team.project_title }}
+                </h5>
+
+            </div>
+
+            {% if team.is_open %}
+                <span class="badge bg-success">Open</span>
+            {% else %}
+                <span class="badge bg-secondary">Closed</span>
+            {% endif %}
+
+        </div>
+
+
+        <hr>
+
+        <p>
+            {{ team.description }}
+        </p>
+
+        <p>
+            <strong>Your Role:</strong>
+            {{ membership.get_role_display }}
+        </p>
+
+        <p>
+            <strong>Team Size:</strong>
+            {{ members|length }}/{{ team.max_members }}
+        </p>
+
+        <p>
+            <strong>Team Leader:</strong>
+            {{ team.leader.username }}
+        </p>
+
+
+        <a href="{% url 'team_detail' team.id %}"
+           class="btn btn-primary mt-2">
+            View Team Details
+        </a>
+
+    </div>
+
+
+    <!-- MEMBERS -->
+
+    <div class="card shadow-sm border-0 p-4">
+
+        <h4 class="fw-bold mb-3">
+            Team Members
+        </h4>
+
+        {% for member in members %}
+
+            <div class="member-row d-flex justify-content-between align-items-center">
+
+                <div>
+
+                    <strong>
+                        {{ member.user.username }}
+                    </strong>
+
+                    <div class="text-muted small">
+                        {{ member.user.first_name }}
+                        {{ member.user.last_name }}
+                    </div>
+
+                </div>
+
+                <span class="badge {% if member.role == 'LEADER' %}bg-primary{% else %}bg-secondary{% endif %}">
+                    {{ member.get_role_display }}
+                </span>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+
+    {% if membership.role == "LEADER" %}
+
+        <div class="alert alert-info mt-4">
+
+            <strong>Team Leader:</strong>
+
+            You are responsible for reviewing incoming join requests.
+
+            <p class="mb-0 mt-2">
+                Pending requests:
+                <strong>{{ pending_requests_count }}</strong>
+            </p>
+
+            <a href="{% url 'team_detail' team.id %}"
+               class="btn btn-primary btn-sm mt-2">
+                Manage Applications
+            </a>
+
+        </div>
+
+    {% endif %}
+
+
+{% else %}
+
+    <div class="card shadow-sm border-0 p-5 text-center">
+
+        <h3 class="fw-bold">
+            You are not part of any team yet.
+        </h3>
+
+        <p class="text-muted">
+            Find a project team that matches your skills
+            or create your own team.
+        </p>
+
+        <div class="d-flex justify-content-center gap-2 mt-3">
+
+            <a href="{% url 'team_list' %}"
+               class="btn btn-primary">
+                Discover Teams
+            </a>
+
+            <a href="{% url 'create_team' %}"
+               class="btn btn-outline-primary">
+                Create Team
+            </a>
+
+        </div>
+
+    </div>
+
+{% endif %}
+
+{% endblock %}

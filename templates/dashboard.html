@@ -1,0 +1,234 @@
+
+{% extends "base.html" %}
+
+{% block title %}Dashboard | SkillMatch{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-page">
+
+    <!-- WELCOME SECTION -->
+    <section class="dashboard-header dashboard-welcome mb-4">
+        <div class="welcome-content">
+            <span class="welcome-label">STUDENT WORKSPACE</span>
+
+            <h1>
+                Welcome back,
+                {{ request.user.first_name|default:request.user.username }}!
+            </h1>
+
+            <p class="mb-0">
+                Find your teammates, showcase your skills and build something great.
+            </p>
+        </div>
+
+        <div class="welcome-decoration">
+            <span>SM</span>
+        </div>
+    </section>
+
+
+    <!-- OVERVIEW -->
+    <section class="mb-5">
+
+        <div class="section-heading mb-3">
+            <div>
+                <h2>Your Overview</h2>
+                <p>Here's a quick look at your SkillMatch account.</p>
+            </div>
+        </div>
+
+        <div class="row g-3">
+
+            <!-- PROFILE OVERVIEW -->
+            <div class="col-md-4">
+                <div class="overview-card">
+                    <div class="overview-icon profile-icon">👤</div>
+
+                    <div>
+                        <span class="overview-label">PROFILE</span>
+                        <h3>{{ profile.skills.count }}</h3>
+                        <p>Skills added</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TEAM OVERVIEW -->
+            <div class="col-md-4">
+                <div class="overview-card">
+                    <div class="overview-icon team-icon">👥</div>
+
+                    <div>
+                        <span class="overview-label">TEAM STATUS</span>
+
+                        {% if membership %}
+                            <h3>Joined</h3>
+                            <p>{{ membership.team.name }}</p>
+                        {% else %}
+                            <h3>Not joined</h3>
+                            <p>Find your project team</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- LEARNING OVERVIEW -->
+            <div class="col-md-4">
+                <div class="overview-card">
+                    <div class="overview-icon lab-icon">🎓</div>
+
+                    <div>
+                        <span class="overview-label">LEARNING LABS</span>
+                        <h3>02</h3>
+                        <p>Interactive simulation labs</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- MAIN MODULES -->
+    <section>
+
+        <div class="section-heading mb-3">
+            <div>
+                <h2>Explore SkillMatch</h2>
+                <p>Everything you need to collaborate and learn.</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+
+            <!-- PROFILE -->
+            <div class="col-md-6">
+                <div class="dashboard-module-card h-100">
+
+                    <div class="module-icon profile-icon">👤</div>
+
+                    <span class="module-category">PERSONAL SPACE</span>
+
+                    <h3>My Profile</h3>
+
+                    <p>
+                        Manage your personal information, introduce yourself
+                        and showcase the technical skills you bring to a team.
+                    </p>
+
+                    <div class="module-footer">
+                        <a href="{% url 'profile' %}"
+                           class="btn btn-outline-primary">
+                            View My Profile →
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- TEAM FORMATION -->
+            <div class="col-md-6">
+                <div class="dashboard-module-card h-100">
+
+                    <div class="module-icon team-icon">👥</div>
+
+                    <span class="module-category">COLLABORATION</span>
+
+                    <h3>Team Formation</h3>
+
+                    {% if membership %}
+                        <p>
+                            You are currently part of
+                            <strong>{{ membership.team.name }}</strong>.
+                            Visit your team space to see your teammates.
+                        </p>
+
+                        <div class="module-footer">
+                            <a href="{% url 'my_team' %}"
+                               class="btn btn-primary">
+                                View My Team →
+                            </a>
+                        </div>
+
+                    {% else %}
+                        <p>
+                            Discover project teams, connect with students
+                            who share your interests or create your own team.
+                        </p>
+
+                        <div class="module-footer d-flex flex-wrap gap-2">
+                            <a href="{% url 'team_list' %}"
+                               class="btn btn-primary">
+                                Discover Teams →
+                            </a>
+
+                            <a href="{% url 'create_team' %}"
+                               class="btn btn-outline-primary">
+                                Create Team
+                            </a>
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+
+
+            <!-- OS LAB -->
+            <div class="col-md-6">
+                <div class="dashboard-module-card h-100">
+
+                    <div class="module-icon os-icon">⚙️</div>
+
+                    <span class="module-category">OPERATING SYSTEMS</span>
+
+                    <h3>OS Simulation Lab</h3>
+
+                    <p>
+                        Understand operating system concepts through
+                        interactive CPU scheduling, Banker's Algorithm
+                        and Producer–Consumer simulations.
+                    </p>
+
+                    <div class="module-footer">
+                        <a href="{% url 'os_lab:home' %}"
+                           class="btn btn-primary">
+                            Open OS Lab →
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- DBMS LAB -->
+            <div class="col-md-6">
+                <div class="dashboard-module-card h-100">
+
+                    <div class="module-icon dbms-icon">🗄️</div>
+
+                    <span class="module-category">DATABASE MANAGEMENT</span>
+
+                    <h3>DBMS Simulation Lab</h3>
+
+                    <p>
+                        Explore your database tables, inspect their structure,
+                        view records and practise read-only SQL queries.
+                    </p>
+
+                    <div class="module-footer">
+                        <a href="{% url 'dbms_lab:home' %}"
+                           class="btn btn-primary">
+                            Open DBMS Lab →
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+</div>
+
+{% endblock %}

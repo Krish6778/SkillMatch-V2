@@ -1,0 +1,206 @@
+
+{% extends "base.html" %}
+
+{% block title %}SkillMatch | Find Your Perfect Project Team{% endblock %}
+
+{% block content %}
+
+<div class="landing-page">
+
+    <!-- HERO SECTION -->
+    <section class="landing-hero">
+
+        <div class="hero-content">
+
+            <span class="hero-eyebrow">
+                YOUR SKILLS. YOUR TEAM. YOUR NEXT PROJECT.
+            </span>
+
+            <h1>
+                Find Your Perfect
+                <span>Project Team.</span>
+            </h1>
+
+            <p class="hero-description">
+                Connect with talented students, discover teammates
+                with complementary skills and turn your project ideas
+                into reality.
+            </p>
+
+            <div class="hero-actions">
+
+                <a href="{% url 'register' %}"
+                   class="btn btn-primary btn-lg">
+                    Get Started <span aria-hidden="true">→</span>
+                </a>
+
+                <a href="{% url 'login' %}"
+                   class="btn btn-outline-primary btn-lg">
+                    Sign In
+                </a>
+
+            </div>
+
+            <div class="hero-trust">
+                <span>✓</span> Discover teammates
+                <span>✓</span> Showcase your skills
+                <span>✓</span> Build projects together
+            </div>
+
+        </div>
+
+        <!-- VISUAL PREVIEW -->
+        <div class="hero-visual">
+
+            <div class="preview-card">
+
+                <div class="preview-topbar">
+                    <div class="preview-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span>SkillMatch Workspace</span>
+                </div>
+
+                <div class="preview-body">
+
+                    <div class="preview-heading">
+                        <div>
+                            <small>YOUR NEXT PROJECT</small>
+                            <h3>Smart Campus App</h3>
+                        </div>
+                        <span class="preview-status">Open</span>
+                    </div>
+
+                    <p class="preview-description">
+                        Looking for passionate developers to build
+                        something meaningful.
+                    </p>
+
+                    <div class="preview-divider"></div>
+
+                    <small class="preview-section-label">
+                        REQUIRED SKILLS
+                    </small>
+
+                    <div class="preview-skills">
+                        <span>Python</span>
+                        <span>Django</span>
+                        <span>MySQL</span>
+                        <span>JavaScript</span>
+                    </div>
+
+                    <div class="preview-divider"></div>
+
+                    <div class="preview-team-heading">
+                        <strong>Build with a team</strong>
+                        <small>Collaborate and grow</small>
+                    </div>
+
+                    <div class="preview-members">
+                        <div class="preview-avatar avatar-one">A</div>
+                        <div class="preview-avatar avatar-two">R</div>
+                        <div class="preview-avatar avatar-three">S</div>
+                        <div class="preview-avatar avatar-four">K</div>
+                        <span>Find your teammates</span>
+                    </div>
+
+                    <div class="preview-bottom">
+                        <span>SkillMatch</span>
+                        <span>Made for collaboration</span>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="floating-tag">
+                <span>✦</span> Skills meet opportunity
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- FEATURES SECTION -->
+    <section class="landing-features">
+
+        <div class="landing-section-heading">
+            <span>WHY SKILLMATCH?</span>
+            <h2>Everything you need to start building.</h2>
+            <p>
+                Find the right people, organize your collaboration
+                and strengthen your technical knowledge.
+            </p>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-4">
+                <div class="feature-card h-100">
+                    <div class="feature-icon feature-blue">👥</div>
+
+                    <h3>Find Your Team</h3>
+
+                    <p>
+                        Discover project teams, connect with students
+                        and find collaborators who complement your skills.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-card h-100">
+                    <div class="feature-icon feature-green">💡</div>
+
+                    <h3>Showcase Your Skills</h3>
+
+                    <p>
+                        Create your student profile, highlight your
+                        technical abilities and let others discover
+                        what you can contribute.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-card h-100">
+                    <div class="feature-icon feature-purple">⚙️</div>
+
+                    <h3>Learn Through Labs</h3>
+
+                    <p>
+                        Explore Operating Systems and DBMS concepts
+                        through practical interactive simulations.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- FINAL CTA -->
+    <section class="landing-cta">
+
+        <div>
+            <span>YOUR NEXT PROJECT STARTS HERE</span>
+            <h2>Great projects begin with great teams.</h2>
+            <p>
+                Create your profile and find the people
+                who can help bring your ideas to life.
+            </p>
+        </div>
+
+        <a href="{% url 'register' %}"
+           class="btn btn-light btn-lg">
+            Join SkillMatch →
+        </a>
+
+    </section>
+
+</div>
+
+{% endblock %}

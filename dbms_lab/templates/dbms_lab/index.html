@@ -1,0 +1,363 @@
+
+{% extends "base.html" %}
+
+{% block title %}DBMS Simulation Lab | SkillMatch{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 py-lg-5 dbms-lab lab-page">
+
+    <div class="lab-hero dbms-lab-hero mb-4">
+        <div class="lab-hero-content">
+            <span class="lab-eyebrow">LEARNING LAB / DATABASE MANAGEMENT</span>
+            <h1>DBMS Simulation Lab</h1>
+            <p>Explore the live SkillMatch MySQL database, inspect table structures, view records, and practise SQL queries.</p>
+            <div class="lab-hero-tags">
+                <span>MySQL Explorer</span>
+                <span>Table Structure</span>
+                <span>SQL Practice</span>
+            </div>
+        </div>
+        <div class="lab-hero-symbol" aria-hidden="true">
+            <i class="bi bi-database"></i>
+        </div>
+    </div>
+
+    <div class="dbms-status-strip mb-4">
+        <div class="dbms-status-main">
+            <span class="dbms-live-indicator"></span>
+            <div>
+                <strong>Live Database Connection</strong>
+                <p>Connected to the SkillMatch application database</p>
+            </div>
+        </div>
+        <span class="dbms-readonly-label"><i class="bi bi-shield-lock-fill"></i> READ ONLY</span>
+    </div>
+
+    <div class="lab-notice dbms-notice mb-4">
+        <i class="bi bi-info-circle-fill"></i>
+        <div>
+            <strong>Safe SQL practice environment</strong>
+            <p>You can inspect permitted application tables and execute read-only SELECT queries. Database modifications are disabled. A maximum of 200 records is displayed per result.</p>
+        </div>
+    </div>
+
+    <div class="lab-section-heading">
+        <div>
+            <span class="lab-section-kicker">DATABASE WORKSPACE</span>
+            <h2>Explore Your Database</h2>
+            <p>Select a table to inspect its structure and records.</p>
+        </div>
+        {% if tables %}
+            <span class="lab-count">{{ tables|length }} TABLES AVAILABLE</span>
+        {% endif %}
+    </div>
+
+    <div class="row g-4 dbms-workspace">
+
+        <!-- DATABASE EXPLORER -->
+        <div class="col-xl-3 col-lg-4">
+            <aside class="lab-panel dbms-explorer">
+                <div class="panel-heading">
+                    <div class="panel-heading-icon"><i class="bi bi-diagram-3"></i></div>
+                    <div>
+                        <h3>Database Explorer</h3>
+                        <p>Application tables</p>
+                    </div>
+                </div>
+
+                {% if tables %}
+                    <div class="dbms-table-list">
+                        {% for table in tables %}
+                            <a href="?table={{ table|urlencode }}"
+                               class="dbms-table-link {% if selected_table == table %}active{% endif %}">
+                                <i class="bi bi-table"></i>
+                                <span>{{ table }}</span>
+                                {% if selected_table == table %}
+                                    <i class="bi bi-chevron-right table-link-arrow"></i>
+                                {% endif %}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-database-x"></i>
+                        <p>No permitted tables were found.</p>
+                    </div>
+                {% endif %}
+
+                <div class="explorer-footer">
+                    <i class="bi bi-lock-fill"></i>
+                    Only approved application tables are accessible.
+                </div>
+            </aside>
+        </div>
+
+        <!-- TABLE VIEWER -->
+        <div class="col-xl-9 col-lg-8">
+            <section class="lab-panel dbms-table-viewer">
+                <div class="panel-heading table-viewer-heading">
+                    <div class="panel-heading-icon"><i class="bi bi-layout-text-window-reverse"></i></div>
+                    <div>
+                        <h3>
+                            {% if selected_table %}
+                                {{ selected_table }}
+                            {% else %}
+                                Table Viewer
+                            {% endif %}
+                        </h3>
+                        <p>
+                            {% if selected_table %}
+                                Structure and live table records
+                            {% else %}
+                                Select a table from the database explorer
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% if selected_table %}
+                        <span class="selected-table-label">SELECTED TABLE</span>
+                    {% endif %}
+                </div>
+
+                {% if selected_table %}
+
+                    <div class="dbms-content-section">
+                        <div class="result-subheading">
+                            <i class="bi bi-list-columns"></i>
+                            Table Structure
+                        </div>
+                        <p class="form-text mb-3">Column definitions, data types, and key information.</p>
+
+                        <div class="table-responsive lab-table-wrap">
+                            <table class="table lab-table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Column</th>
+                                        <th>Data Type</th>
+                                        <th>Nullable</th>
+                                        <th>Key</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for field in table_structure %}
+                                        <tr>
+                                            <td><strong>{{ field.name }}</strong></td>
+                                            <td><code>{{ field.type }}</code></td>
+                                            <td>{{ field.nullable|yesno:"Yes,No" }}</td>
+                                            <td>
+                                                {% if field.primary_key %}
+                                                    <span class="dbms-key-badge primary-key">Primary Key</span>
+                                                {% endif %}
+                                                {% if field.foreign_key %}
+                                                    <span class="dbms-key-badge foreign-key">Foreign Key</span>
+                                                {% endif %}
+                                                {% if not field.primary_key and not field.foreign_key %}
+                                                    <span class="text-muted">—</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted py-4">No structure information available.</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="dbms-content-section">
+                        <div class="dbms-record-heading">
+                            <div>
+                                <div class="result-subheading">
+                                    <i class="bi bi-table"></i>
+                                    Table Records
+                                </div>
+                                <p class="form-text mb-0">Live records retrieved from the selected table.</p>
+                            </div>
+                            <span class="record-limit-label">MAX 200 RECORDS</span>
+                        </div>
+
+                        <div class="table-responsive lab-table-wrap">
+                            <table class="table lab-table align-middle">
+                                <thead>
+                                    <tr>
+                                        {% for column in table_columns %}
+                                            <th>{{ column }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for record in table_records %}
+                                        <tr>
+                                            {% for value in record %}
+                                                <td>{{ value|default_if_none:"NULL" }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="{{ table_columns|length }}" class="text-center text-muted py-4">
+                                                No records found in this table.
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                {% else %}
+                    <div class="dbms-empty-view">
+                        <div class="empty-database-icon"><i class="bi bi-database"></i></div>
+                        <h4>Select a table to get started</h4>
+                        <p>Choose one of the available tables in the Database Explorer to view its columns, keys, data types, and records.</p>
+                    </div>
+                {% endif %}
+            </section>
+        </div>
+    </div>
+
+    <!-- SQL QUERY EDITOR -->
+    <section class="lab-panel sql-editor-panel mt-4">
+        <div class="panel-heading">
+            <div class="panel-heading-icon sql-icon"><i class="bi bi-terminal"></i></div>
+            <div>
+                <h3>SQL Query Editor</h3>
+                <p>Write and execute read-only SQL queries against the live database.</p>
+            </div>
+            <span class="sql-mode-label">SELECT ONLY</span>
+        </div>
+
+        <form method="POST" class="sql-form">
+            {% csrf_token %}
+
+            <label class="form-label" for="{{ query_form.query.id_for_label }}">Your SQL Query</label>
+            <div class="sql-editor-shell">
+                <div class="sql-editor-toolbar">
+                    <span><i class="bi bi-circle-fill"></i> SQL EDITOR</span>
+                    <span>MySQL</span>
+                </div>
+                {{ query_form.query }}
+            </div>
+
+            {% if query_form.query.errors %}
+                <div class="text-danger small mt-2">{{ query_form.query.errors }}</div>
+            {% endif %}
+            {% if query_form.non_field_errors %}
+                <div class="alert alert-danger mt-3">{{ query_form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="sql-actions mt-3">
+                <button type="submit" class="btn btn-primary lab-run-button">
+                    <i class="bi bi-play-fill"></i>
+                    Execute Query
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary sql-example-button"
+                    onclick="document.getElementById('id_query').value = 'SELECT * FROM core_team LIMIT 20;'">
+                    <i class="bi bi-file-earmark-code"></i>
+                    Load Example
+                </button>
+            </div>
+        </form>
+
+        <div class="sql-examples">
+            <div class="result-subheading">
+                <i class="bi bi-lightbulb"></i>
+                Example Queries
+            </div>
+            <p class="form-text">Use these examples to get started. Select an example to copy it into the editor.</p>
+
+            <div class="sql-example-list">
+                <button type="button" class="sql-example-item"
+                    onclick="document.getElementById('id_query').value = 'SELECT * FROM core_team;'">
+                    <span><small>VIEW ALL TEAMS</small><code>SELECT * FROM core_team;</code></span>
+                    <i class="bi bi-arrow-up-left"></i>
+                </button>
+
+                <button type="button" class="sql-example-item"
+                    onclick="document.getElementById('id_query').value = 'SELECT name, description FROM core_skill;'">
+                    <span><small>VIEW SKILLS</small><code>SELECT name, description FROM core_skill;</code></span>
+                    <i class="bi bi-arrow-up-left"></i>
+                </button>
+
+                <button type="button" class="sql-example-item"
+                    onclick="document.getElementById('id_query').value = 'SELECT * FROM core_team WHERE is_open = 1;'">
+                    <span><small>OPEN TEAMS</small><code>SELECT * FROM core_team WHERE is_open = 1;</code></span>
+                    <i class="bi bi-arrow-up-left"></i>
+                </button>
+
+                <button type="button" class="sql-example-item"
+                    onclick="document.getElementById('id_query').value = 'SELECT COUNT(*) FROM core_team;'">
+                    <span><small>COUNT TEAMS</small><code>SELECT COUNT(*) FROM core_team;</code></span>
+                    <i class="bi bi-arrow-up-left"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- QUERY ERROR -->
+    {% if query_error %}
+        <div class="query-feedback query-error mt-4">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <div>
+                <strong>Query Error</strong>
+                <p>{{ query_error }}</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- QUERY RESULTS -->
+    {% if query_result %}
+        <section class="lab-panel query-results-panel mt-4">
+            <div class="panel-heading query-results-heading">
+                <div class="panel-heading-icon"><i class="bi bi-table"></i></div>
+                <div>
+                    <h3>Query Results</h3>
+                    <p>Your SQL query execution output</p>
+                </div>
+                <span class="result-status">
+                    <i class="bi bi-check-circle-fill"></i>
+                    {{ query_result.row_count }} rows returned
+                </span>
+            </div>
+
+            {% if query_result.truncated %}
+                <div class="query-truncation-notice">
+                    <i class="bi bi-info-circle-fill"></i>
+                    Only the first 200 rows are displayed.
+                </div>
+            {% endif %}
+
+            <div class="table-responsive lab-table-wrap">
+                <table class="table lab-table align-middle">
+                    <thead>
+                        <tr>
+                            {% for column in query_result.columns %}
+                                <th>{{ column }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in query_result.rows %}
+                            <tr>
+                                {% for value in record %}
+                                    <td>{{ value|default_if_none:"NULL" }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="{{ query_result.columns|length }}" class="text-center text-muted py-4">
+                                    Query executed successfully. No records returned.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    {% endif %}
+
+</div>
+{% endblock %}

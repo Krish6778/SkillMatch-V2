@@ -1,0 +1,331 @@
+
+{% extends "base.html" %}
+
+{% block title %}OS Simulation Lab | SkillMatch{% endblock %}
+
+{% block content %}
+<div class="container py-4 py-lg-5 os-lab">
+
+    <!-- Page heading -->
+    <div class="lab-page-header mb-4">
+        <div>
+            <span class="lab-eyebrow">LEARNING ENVIRONMENT / 01</span>
+            <h1>Operating System Lab</h1>
+            <p>Explore and understand core operating system algorithms through interactive simulations.</p>
+        </div>
+        <div class="lab-header-icon">
+            <span>OS</span>
+        </div>
+    </div>
+
+    <!-- Learning notice -->
+    <div class="os-intro mb-4">
+        <div class="notice-icon">i</div>
+        <div>
+            <strong>Educational simulation mode</strong>
+            <p>These simulations demonstrate operating system concepts. They do not modify your computer's actual processes, memory, or system resources.</p>
+        </div>
+    </div>
+
+    <!-- CPU Scheduling -->
+    <section class="os-card mb-4" id="cpu-scheduling">
+        <div class="lab-card-heading">
+            <div class="lab-number">01</div>
+            <div>
+                <span class="lab-card-category">PROCESS MANAGEMENT</span>
+                <h2>CPU Scheduling Simulator</h2>
+                <p>Compare scheduling algorithms and calculate process execution metrics.</p>
+            </div>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="cpu">
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Scheduling Algorithm</label>
+                    {{ cpu_form.algorithm }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Time Quantum (Round Robin)</label>
+                    {{ cpu_form.quantum }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Process Information</label>
+                    {{ cpu_form.processes }}
+                    <small class="form-text">{{ cpu_form.processes.help_text }}</small>
+                </div>
+            </div>
+
+            {% if cpu_form.errors %}
+                <div class="alert alert-danger mt-3">
+                    {{ cpu_form.errors }}
+                </div>
+            {% endif %}
+
+            <button class="btn btn-primary lab-submit-btn mt-3" type="submit">
+                Run CPU Simulation <span aria-hidden="true">→</span>
+            </button>
+        </form>
+
+        {% if cpu_result %}
+            <div class="lab-results mt-4">
+                <div class="result-heading">
+                    <span class="result-label">SIMULATION OUTPUT</span>
+                    <h3>Execution Timeline</h3>
+                    <p>Visual representation of process execution order.</p>
+                </div>
+
+                <div class="gantt-chart">
+                    {% for item in cpu_result.gantt %}
+                        <div class="gantt-block">
+                            <strong>{{ item.pid }}</strong>
+                            <small>{{ item.start }} – {{ item.end }}</small>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <h4 class="result-subheading">Process Scheduling Results</h4>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover lab-table">
+                        <thead>
+                            <tr>
+                                <th>Process</th>
+                                <th>Arrival</th>
+                                <th>Burst</th>
+                                <th>Priority</th>
+                                <th>Completion</th>
+                                <th>Turnaround</th>
+                                <th>Waiting</th>
+                                <th>Response</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cpu_result.results %}
+                                <tr>
+                                    <td><strong>{{ item.pid }}</strong></td>
+                                    <td>{{ item.arrival }}</td>
+                                    <td>{{ item.burst }}</td>
+                                    <td>{{ item.priority }}</td>
+                                    <td>{{ item.completion }}</td>
+                                    <td>{{ item.turnaround }}</td>
+                                    <td>{{ item.waiting }}</td>
+                                    <td>{{ item.response }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row g-3 mt-2">
+                    <div class="col-md-6">
+                        <div class="os-stat">
+                            <span>Average Waiting Time</span>
+                            <strong>{{ cpu_result.average_waiting }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="os-stat">
+                            <span>Average Turnaround Time</span>
+                            <strong>{{ cpu_result.average_turnaround }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- Banker's Algorithm -->
+    <section class="os-card mb-4" id="bankers-algorithm">
+        <div class="lab-card-heading">
+            <div class="lab-number">02</div>
+            <div>
+                <span class="lab-card-category">DEADLOCK MANAGEMENT</span>
+                <h2>Banker's Algorithm</h2>
+                <p>Check system resource allocation and determine whether the current state is safe.</p>
+            </div>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="banker">
+
+            <label class="form-label">Resource Configuration (JSON)</label>
+            {{ banker_form.configuration }}
+            <small class="form-text">{{ banker_form.configuration.help_text }}</small>
+
+            {% if banker_form.errors %}
+                <div class="alert alert-danger mt-3">
+                    {{ banker_form.errors }}
+                </div>
+            {% endif %}
+
+            <button class="btn btn-primary lab-submit-btn mt-3" type="submit">
+                Check System Safety <span aria-hidden="true">→</span>
+            </button>
+        </form>
+
+        {% if banker_result %}
+            <div class="lab-results mt-4">
+                <div class="result-heading">
+                    <span class="result-label">ANALYSIS OUTPUT</span>
+                    <h3>System Safety Analysis</h3>
+                </div>
+
+                {% if banker_result.safe %}
+                    <div class="safety-result safe-result">
+                        <strong>Safe State</strong>
+                        <p>The system can complete all processes without entering an unsafe state under the given resource allocation.</p>
+                    </div>
+
+                    <div class="sequence-panel">
+                        <span>SAFE EXECUTION SEQUENCE</span>
+                        <strong>{{ banker_result.sequence|join:" → " }}</strong>
+                    </div>
+                {% else %}
+                    <div class="safety-result unsafe-result">
+                        <strong>Unsafe State</strong>
+                        <p>No complete safe sequence was found for the current resource allocation.</p>
+                    </div>
+
+                    {% if banker_result.sequence %}
+                        <div class="sequence-panel">
+                            <span>PROCESSES THAT COULD FINISH FIRST</span>
+                            <strong>{{ banker_result.sequence|join:" → " }}</strong>
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+                <div class="result-heading mt-4">
+                    <h4>Need Matrix</h4>
+                    <p>Need = Maximum Demand − Current Allocation</p>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover lab-table">
+                        <thead>
+                            <tr>
+                                <th>Process</th>
+                                {% for value in banker_result.available %}
+                                    <th>Resource {{ forloop.counter }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in banker_result.need %}
+                                <tr>
+                                    <td><strong>P{{ forloop.counter0 }}</strong></td>
+                                    {% for value in row %}
+                                        <td>{{ value }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- Producer Consumer -->
+    <section class="os-card mb-4" id="producer-consumer">
+        <div class="lab-card-heading">
+            <div class="lab-number">03</div>
+            <div>
+                <span class="lab-card-category">PROCESS SYNCHRONIZATION</span>
+                <h2>Producer–Consumer Simulation</h2>
+                <p>Understand synchronization using a bounded buffer shared by producers and consumers.</p>
+            </div>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="producer_consumer">
+
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label">Buffer Capacity</label>
+                    {{ pc_form.capacity }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Simulation Operations</label>
+                    {{ pc_form.operations }}
+                    <small class="form-text">{{ pc_form.operations.help_text }}</small>
+                </div>
+            </div>
+
+            {% if pc_form.errors %}
+                <div class="alert alert-danger mt-3">
+                    {{ pc_form.errors }}
+                </div>
+            {% endif %}
+
+            <button class="btn btn-primary lab-submit-btn mt-3" type="submit">
+                Run Synchronization Simulation <span aria-hidden="true">→</span>
+            </button>
+        </form>
+
+        {% if pc_result %}
+            <div class="lab-results mt-4">
+                <div class="result-heading">
+                    <span class="result-label">SIMULATION OUTPUT</span>
+                    <h3>Buffer Operation Log</h3>
+                    <p>Observe how each operation changes the buffer state.</p>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover lab-table">
+                        <thead>
+                            <tr>
+                                <th>Step</th>
+                                <th>Operation</th>
+                                <th>Result</th>
+                                <th>Buffer Contents</th>
+                                <th>Items</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in pc_result.log %}
+                                <tr>
+                                    <td><strong>{{ item.step }}</strong></td>
+                                    <td>{{ item.operation }}</td>
+                                    <td>{{ item.status }}</td>
+                                    <td>
+                                        {% if item.buffer %}
+                                            {{ item.buffer|join:", " }}
+                                        {% else %}
+                                            Empty
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ item.count }}/{{ pc_result.capacity }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="final-buffer-panel">
+                    <div>
+                        <span>FINAL BUFFER STATE</span>
+                        <strong>
+                            {% if pc_result.final_buffer %}
+                                {{ pc_result.final_buffer|join:", " }}
+                            {% else %}
+                                Empty
+                            {% endif %}
+                        </strong>
+                    </div>
+                    <div class="buffer-capacity">
+                        {{ pc_result.final_buffer|length }}/{{ pc_result.capacity }} items
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+
+</div>
+{% endblock %}
